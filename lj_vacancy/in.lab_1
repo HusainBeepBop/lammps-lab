@@ -33,7 +33,6 @@ unfix NVT_fix
 
 # Delete an atom to create a single vacancy. The ID is 
 # (Box size / 2) * (Box size) * (Box size) + (Box size / 2) * (Box size) + (Box size / 2)
-# For a 10x10x10 box, this is (5*10*10) + (5*10) + 5 = 555
 group vacancy_group id 555
 delete_atoms group vacancy_group
 print "Created a single vacancy by deleting atom with ID: 555"
