@@ -5,7 +5,7 @@ atom_style atomic
 boundary p p p
 
 # Define simulation parameters as variables for easy modification
-variable box_size equal 10.0
+variable box_size equal 11.0
 variable temp equal 1.0       # Target temperature in LJ units
 variable run_steps equal 20000 # Number of steps for the main simulation
 
@@ -33,7 +33,7 @@ unfix NVT_fix
 
 # Delete an atom to create a single vacancy. The ID is 
 # (Box size / 2) * (Box size) * (Box size) + (Box size / 2) * (Box size) + (Box size / 2)
-group vacancy_group id 555
+group vacancy_group id 732
 delete_atoms group vacancy_group
 print "Created a single vacancy by deleting atom with ID: 555"
 
