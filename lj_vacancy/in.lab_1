@@ -5,7 +5,7 @@ atom_style atomic
 boundary p p p
 
 # Define simulation parameters as variables for easy modification
-variable box_size equal 27.0
+variable box_size equal 10.0
 variable temp equal 1.0       # Target temperature in LJ units
 variable run_steps equal 20000 # Number of steps for the main simulation
 
