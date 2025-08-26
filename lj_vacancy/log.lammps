@@ -8,7 +8,7 @@ atom_style atomic
 boundary p p p
 
 # Define simulation parameters as variables for easy modification
-variable box_size equal 16.0
+variable box_size equal 17.0
 variable temp equal 1.0       # Target temperature in LJ units
 variable run_steps equal 20000 # Number of steps for the main simulation
 
@@ -16,15 +16,15 @@ variable run_steps equal 20000 # Number of steps for the main simulation
 lattice sc 1.0
 Lattice spacing in x,y,z = 1 1 1
 region my_box block 0 ${box_size} 0 ${box_size} 0 ${box_size} units lattice
-region my_box block 0 16 0 ${box_size} 0 ${box_size} units lattice
-region my_box block 0 16 0 16 0 ${box_size} units lattice
-region my_box block 0 16 0 16 0 16 units lattice
+region my_box block 0 17 0 ${box_size} 0 ${box_size} units lattice
+region my_box block 0 17 0 17 0 ${box_size} units lattice
+region my_box block 0 17 0 17 0 17 units lattice
 create_box 1 my_box
-Created orthogonal box = (0 0 0) to (16 16 16)
+Created orthogonal box = (0 0 0) to (17 17 17)
   1 by 1 by 1 MPI processor grid
 create_atoms 1 region my_box
-Created 4096 atoms
-  using lattice units in orthogonal box = (0 0 0) to (16 16 16)
+Created 4913 atoms
+  using lattice units in orthogonal box = (0 0 0) to (17 17 17)
   create_atoms CPU = 0.001 seconds
 mass 1 1.0
 
@@ -43,58 +43,58 @@ Neighbor list info ...
   max neighbors/atom: 2000, page size: 100000
   master list distance cutoff = 2.8
   ghost atom cutoff = 2.8
-  binsize = 1.4, bins = 12 12 12
+  binsize = 1.4, bins = 13 13 13
   1 neighbor lists, perpetual/occasional/extra = 1 0 0
   (1) pair lj/cut, perpetual
       attributes: half, newton on
       pair build: half/bin/atomonly/newton
       stencil: half/bin/3d
       bin: standard
-Per MPI rank memory allocation (min/avg/max) = 3.695 | 3.695 | 3.695 Mbytes
+Per MPI rank memory allocation (min/avg/max) = 4.11 | 4.11 | 4.11 Mbytes
    Step          Temp          E_pair         E_mol          TotEng         Press     
          0   0             -3.9823364      0             -3.9823364      16.843284    
-      5000   1.0009279     -5.8205454      0             -4.3195201      8.5116508    
-Loop time of 16.1741 on 1 procs for 5000 steps with 4096 atoms
+      5000   0.99263887    -5.8241161      0             -4.3354609      8.5081048    
+Loop time of 18.5996 on 1 procs for 5000 steps with 4913 atoms
 
-Performance: 133546.475 tau/day, 309.135 timesteps/s, 1.266 Matom-step/s
-100.0% CPU use with 1 MPI tasks x 1 OpenMP threads
+Performance: 116131.828 tau/day, 268.824 timesteps/s, 1.321 Matom-step/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Pair    | 11.603     | 11.603     | 11.603     |   0.0 | 71.74
-Neigh   | 4.0095     | 4.0095     | 4.0095     |   0.0 | 24.79
-Comm    | 0.18123    | 0.18123    | 0.18123    |   0.0 |  1.12
-Output  | 3.7538e-05 | 3.7538e-05 | 3.7538e-05 |   0.0 |  0.00
-Modify  | 0.31198    | 0.31198    | 0.31198    |   0.0 |  1.93
-Other   |            | 0.06858    |            |       |  0.42
+Pair    | 13.425     | 13.425     | 13.425     |   0.0 | 72.18
+Neigh   | 4.5382     | 4.5382     | 4.5382     |   0.0 | 24.40
+Comm    | 0.19872    | 0.19872    | 0.19872    |   0.0 |  1.07
+Output  | 3.3633e-05 | 3.3633e-05 | 3.3633e-05 |   0.0 |  0.00
+Modify  | 0.3581     | 0.3581     | 0.3581     |   0.0 |  1.93
+Other   |            | 0.07965    |            |       |  0.43
 
-Nlocal:           4096 ave        4096 max        4096 min
+Nlocal:           4913 ave        4913 max        4913 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
-Nghost:           6001 ave        6001 max        6001 min
+Nghost:           6663 ave        6663 max        6663 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
-Neighs:         184378 ave      184378 max      184378 min
+Neighs:         221003 ave      221003 max      221003 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
 
-Total # of neighbors = 184378
-Ave neighs/atom = 45.01416
-Neighbor list builds = 603
+Total # of neighbors = 221003
+Ave neighs/atom = 44.98331
+Neighbor list builds = 609
 Dangerous builds = 0
 
 # Store the total potential energy of the perfect lattice
 variable pe_perfect equal pe
 print "Potential energy of perfect lattice: ${pe_perfect}"
-Potential energy of perfect lattice: -5.82054543287243
+Potential energy of perfect lattice: -5.82411611068468
 
 # -------------------- Part 2: Introduce Vacancy and Re-run --------------------
 unfix NVT_fix
 
 # Delete an atom to create a single vacancy. The ID is
 # (Box size / 2) * (Box size) * (Box size) + (Box size / 2) * (Box size) + (Box size / 2)
-group vacancy_group id 2184
+group vacancy_group id 2610
 1 atoms in group vacancy_group
 delete_atoms group vacancy_group
-Deleted 1 atoms, new total = 4095
+Deleted 1 atoms, new total = 4912
 print "Created a single vacancy by deleting atom with ID: 555"
 Created a single vacancy by deleting atom with ID: 555
 
@@ -107,41 +107,41 @@ fix NVT_vac all nvt temp 1 1 0.1
 run ${run_steps}
 run 20000
 Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
-Per MPI rank memory allocation (min/avg/max) = 3.704 | 3.704 | 3.704 Mbytes
+Per MPI rank memory allocation (min/avg/max) = 4.122 | 4.122 | 4.122 Mbytes
    Step          Temp          E_pair         E_mol          TotEng         Press     
-      5000   1.0010004     -5.8201584      0             -4.3190245      8.5026352    
-     25000   0.98402077    -5.7914882      0             -4.3158175      8.622185     
-Loop time of 50.5352 on 1 procs for 20000 steps with 4095 atoms
+      5000   0.99279548    -5.8226867      0             -4.3337967      8.5074678    
+     25000   0.99302767    -5.7689092      0             -4.2796709      8.7726831    
+Loop time of 60.5166 on 1 procs for 20000 steps with 4912 atoms
 
-Performance: 170969.955 tau/day, 395.764 timesteps/s, 1.621 Matom-step/s
-100.0% CPU use with 1 MPI tasks x 1 OpenMP threads
+Performance: 142770.654 tau/day, 330.488 timesteps/s, 1.623 Matom-step/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Pair    | 35.439     | 35.439     | 35.439     |   0.0 | 70.13
-Neigh   | 13.411     | 13.411     | 13.411     |   0.0 | 26.54
-Comm    | 0.5646     | 0.5646     | 0.5646     |   0.0 |  1.12
-Output  | 4.4517e-05 | 4.4517e-05 | 4.4517e-05 |   0.0 |  0.00
-Modify  | 0.90689    | 0.90689    | 0.90689    |   0.0 |  1.79
-Other   |            | 0.2136     |            |       |  0.42
+Pair    | 42.695     | 42.695     | 42.695     |   0.0 | 70.55
+Neigh   | 15.851     | 15.851     | 15.851     |   0.0 | 26.19
+Comm    | 0.64192    | 0.64192    | 0.64192    |   0.0 |  1.06
+Output  | 4.3252e-05 | 4.3252e-05 | 4.3252e-05 |   0.0 |  0.00
+Modify  | 1.0699     | 1.0699     | 1.0699     |   0.0 |  1.77
+Other   |            | 0.2589     |            |       |  0.43
 
-Nlocal:           4095 ave        4095 max        4095 min
+Nlocal:           4912 ave        4912 max        4912 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
-Nghost:           5985 ave        5985 max        5985 min
+Nghost:           6654 ave        6654 max        6654 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
-Neighs:         184109 ave      184109 max      184109 min
+Neighs:         221009 ave      221009 max      221009 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
 
-Total # of neighbors = 184109
-Ave neighs/atom = 44.959463
-Neighbor list builds = 2736
+Total # of neighbors = 221009
+Ave neighs/atom = 44.993689
+Neighbor list builds = 2765
 Dangerous builds = 0
 
 # Store the total potential energy of the system with a vacancy
 variable pe_vacancy equal pe
 print "Potential energy of system with vacancy: ${pe_vacancy}"
-Potential energy of system with vacancy: -5.79148824605192
+Potential energy of system with vacancy: -5.76890919769615
 
 # -------------------- Final Calculation and Output --------------------
 # Calculate the number of atoms in the perfect lattice
@@ -157,15 +157,15 @@ variable G equal "v_pe_vacancy - (v_n_vacancy/v_n_perfect) * v_pe_perfect"
 print "-----------------------------------------------------"
 -----------------------------------------------------
 print "Domain Size (R) = ${box_size} LJ"
-Domain Size (R) = 16 LJ
+Domain Size (R) = 17 LJ
 print "1/R = ${box_size}^(-1)"
-1/R = 16^(-1)
+1/R = 17^(-1)
 print "Number of atoms in perfect lattice (N) = ${n_perfect}"
-Number of atoms in perfect lattice (N) = 4096
+Number of atoms in perfect lattice (N) = 4913
 print "Number of atoms in vacancy system (N-1) = ${n_vacancy}"
-Number of atoms in vacancy system (N-1) = 4095
+Number of atoms in vacancy system (N-1) = 4912
 print "Vacancy Formation Energy (G) = ${G} epsilon"
-Vacancy Formation Energy (G) = -0.00141393756007169 epsilon
+Vacancy Formation Energy (G) = -0.00117421314832011 epsilon
 print "-----------------------------------------------------"
 -----------------------------------------------------
 
@@ -176,7 +176,7 @@ dump_modify 1 sort id
 
 # Write a data file in LAMMPS format for OVITO
 write_data final_box_${box_size}.data
-write_data final_box_16.data
+write_data final_box_17.data
 System init for write_data ...
 Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
-Total wall time: 0:01:06
+Total wall time: 0:01:19
