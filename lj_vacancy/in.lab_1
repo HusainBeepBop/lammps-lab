@@ -29,10 +29,8 @@ variable pe_perfect equal pe
 print "Potential energy of perfect lattice: ${pe_perfect}"
 
 # -------------------- Part 2: Introduce Vacancy and Re-run --------------------
-# Unfix the NVT ensemble to modify the system
 unfix NVT_fix
 
-# ❗❗❗ CHANGE THIS ATOM ID FOR EACH RUN ❗❗❗
 # Delete an atom to create a single vacancy. The ID is 
 # (Box size / 2) * (Box size) * (Box size) + (Box size / 2) * (Box size) + (Box size / 2)
 # For a 10x10x10 box, this is (5*10*10) + (5*10) + 5 = 555
