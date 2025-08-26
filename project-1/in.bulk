@@ -1,0 +1,38 @@
+# LAMMPS input script: Calculate bulk energy for Copper (Cu)
+
+# 1. Initialization
+units           metal
+dimension       3
+boundary        p p p         
+atom_style      atomic
+
+# 2. System Definition
+lattice         fcc 3.615     # Create an FCC lattice for Cu (3.615 Angstrom is the lattice constant)
+region          box block 0 10 0 10 0 10 # Create a 10x10x10 unit cell box
+create_box      1 box
+create_atoms    1 box
+
+# 3. Force Field (Potential)
+pair_style      eam
+pair_coeff      * * Cu_u3.eam # You need to download an EAM potential file for Cu
+
+# 4. Settings
+compute         eng all pe/atom # Compute potential energy per atom
+compute         eatoms all reduce sum c_eng # Sum the per-atom energies
+
+# 5. Run Minimization
+thermo          10
+thermo_style    custom step pe c_eatoms
+minimize        1.0e-12 1.0e-12 10000 100000
+
+# 6. Final Energy Output
+variable        N equal "count(all)"
+variable        E_total equal "c_eatoms"
+variable        E_per_atom equal "v_E_total / v_N"
+
+print "-----------------------------------------------------"
+print "Bulk Calculation Complete"
+print "Total Atoms (N) = ${N}"
+print "Total Energy (E_total) = ${E_total} eV"
+print "Energy per Atom (E_per_atom) = ${E_per_atom} eV/atom"
+print "-----------------------------------------------------"

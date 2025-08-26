@@ -1,0 +1,62 @@
+# ---------- Initialize Simulation --------------------
+units           metal
+dimension       3
+boundary        p p p
+atom_style      atomic
+atom_modify     map array
+
+# ---------- Define FCC Argon Lattice -----------------
+# Argon LJ parameters (epsilon = 0.0103 eV, sigma = 3.405 Å)
+#variable a equal 5.1       # Initial guess for lattice constant (Å)
+
+lattice         fcc 5.9
+region          box block 0 1 0 1 0 1 units lattice
+create_box      1 box
+create_atoms    1 box
+
+# Replicate to make bigger system (avoid finite size effects)
+replicate       5 5 5       # -> 500 atoms (5x5x5 FCC cells)
+
+mass            1 39.948    # Argon mass (g/mol)
+
+# ---------- LJ Potential -----------------------------
+pair_style      lj/cut 10
+
+pair_coeff      1 1 0.0103 3.405
+pair_modify	tail yes
+
+neighbor        2.0 bin
+neigh_modify    delay 10 check yes
+
+# ---------- Relaxation -------------------------------
+reset_timestep  0
+fix             1 all box/relax iso 0.0 vmax 0.001
+
+min_style       cg
+min_modify      dmax 0.01
+minimize        1.0e-12 1.0e-12 5000 10000
+
+unfix           1
+
+# ---------- Molecular Dynamics Run & Output ---------
+# Add these lines to run the simulation and generate output
+velocity        all create 300 87345 dist gaussian
+fix             2 all nve
+timestep        0.001
+dump            my_dump all custom 100 final.dump id type x y z
+dump_modify     my_dump sort id
+run             100000
+
+# ---------- Output Properties ------------------------
+variable natoms equal "count(all)"
+variable teng   equal pe
+variable length equal "lx/5.0"      # Divide by 5 (replication) to get lattice constant
+variable ecoh   equal "v_teng/v_natoms"
+
+print "Total energy (eV) = ${teng}"
+print "Number of atoms = ${natoms}"
+print "Equilibrium lattice constant (Angstroms) = ${length}"
+print "Cohesive energy per atom (eV) = ${ecoh}"
+
+print "All done!"
+

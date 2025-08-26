@@ -1,0 +1,78 @@
+# -------------------- Initialization and Setup --------------------
+units lj
+dimension 3
+atom_style atomic
+boundary p p p
+
+# Define simulation parameters as variables for easy modification
+variable box_size equal 27.0
+variable temp equal 1.0       # Target temperature in LJ units
+variable run_steps equal 20000 # Number of steps for the main simulation
+
+# -------------------- Part 1: Perfect Lattice Simulation --------------------
+lattice sc 1.0
+region my_box block 0 ${box_size} 0 ${box_size} 0 ${box_size} units lattice
+create_box 1 my_box
+create_atoms 1 region my_box
+mass 1 1.0
+
+# Define the LJ pair potential. Since we are using LJ units, epsilon and sigma are 1.0
+pair_style lj/cut 2.5
+pair_coeff 1 1 1.0 1.0
+
+# Set up the NVT ensemble for temperature control and equilibration
+fix NVT_fix all nvt temp ${temp} ${temp} 0.1
+run 5000
+
+# Store the total potential energy of the perfect lattice
+variable pe_perfect equal pe
+print "Potential energy of perfect lattice: ${pe_perfect}"
+
+# -------------------- Part 2: Introduce Vacancy and Re-run --------------------
+# Unfix the NVT ensemble to modify the system
+unfix NVT_fix
+
+# ❗❗❗ CHANGE THIS ATOM ID FOR EACH RUN ❗❗❗
+# Delete an atom to create a single vacancy. The ID is 
+# (Box size / 2) * (Box size) * (Box size) + (Box size / 2) * (Box size) + (Box size / 2)
+# For a 10x10x10 box, this is (5*10*10) + (5*10) + 5 = 555
+group vacancy_group id 555
+delete_atoms group vacancy_group
+print "Created a single vacancy by deleting atom with ID: 555"
+
+# -------------------- Part 3: Vacancy System Simulation and Data Output --------------------
+# Apply NVT ensemble again for the system with a vacancy
+fix NVT_vac all nvt temp ${temp} ${temp} 0.1
+# Run the simulation for the system with a vacancy
+run ${run_steps}
+
+# Store the total potential energy of the system with a vacancy
+variable pe_vacancy equal pe
+print "Potential energy of system with vacancy: ${pe_vacancy}"
+
+# -------------------- Final Calculation and Output --------------------
+# Calculate the number of atoms in the perfect lattice
+variable n_perfect equal count(all)+1
+# Calculate the number of atoms in the vacancy system
+variable n_vacancy equal count(all)
+
+# Calculate the vacancy formation energy (G)
+# G = [E(N-1) - (N-1)/N * E(N)]
+# This is the corrected line for the variable definition
+variable G equal "v_pe_vacancy - (v_n_vacancy/v_n_perfect) * v_pe_perfect"
+
+print "-----------------------------------------------------"
+print "Domain Size (R) = ${box_size} LJ"
+print "1/R = ${box_size}^(-1)"
+print "Number of atoms in perfect lattice (N) = ${n_perfect}"
+print "Number of atoms in vacancy system (N-1) = ${n_vacancy}"
+print "Vacancy Formation Energy (G) = ${G} epsilon"
+print "-----------------------------------------------------"
+
+# -------------------- Data Output for OVITO --------------------
+# Write the final coordinates and properties of atoms to a dump file
+dump 1 all custom 1000 dump.lammpstrj id type x y z
+dump_modify 1 sort id
+
+# Write a data file in LAMMPS format for OVITO
+write_data final_box_${box_size}.data

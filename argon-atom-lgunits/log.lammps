@@ -1,0 +1,194 @@
+LAMMPS (7 Feb 2024 - Update 1)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+# ---------- Initialize Simulation --------------------
+units           lj
+dimension       3
+boundary        p p p
+atom_style      atomic
+atom_modify     map array
+
+# ---------- Define FCC Argon Lattice -----------------
+# In LJ units, use sigma = 1.0, so lattice constant is typically ~1.55
+lattice         fcc 1.55
+Lattice spacing in x,y,z = 1.3716483 1.3716483 1.3716483
+region          box block 0 1 0 1 0 1 units lattice
+create_box      1 box
+Created orthogonal box = (0 0 0) to (1.3716483 1.3716483 1.3716483)
+  1 by 1 by 1 MPI processor grid
+create_atoms    1 box
+Created 4 atoms
+  using lattice units in orthogonal box = (0 0 0) to (1.3716483 1.3716483 1.3716483)
+  create_atoms CPU = 0.001 seconds
+
+# Replicate to create bigger system (avoid finite size effects)
+replicate       5 5 5       # 500 atoms total
+Replication is creating a 5x5x5 = 125 times larger system...
+  orthogonal box = (0 0 0) to (6.8582414 6.8582414 6.8582414)
+  1 by 1 by 1 MPI processor grid
+  500 atoms
+  replicate CPU = 0.001 seconds
+
+mass            1 1.0       # LJ units: mass = 1.0
+
+# ---------- LJ Potential -----------------------------
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0     # ε = 1.0, σ = 1.0 in LJ units
+pair_modify     tail yes
+
+neighbor        0.3 bin
+neigh_modify    delay 10 check yes
+
+# ---------- Relaxation -------------------------------
+reset_timestep  0
+fix             1 all box/relax iso 0.0 vmax 0.001
+
+min_style       cg
+min_modify      dmax 0.01
+minimize        1.0e-12 1.0e-12 5000 10000
+Switching to 'neigh_modify every 1 delay 0 check yes' setting during minimization
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 5 5 5
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d
+      bin: standard
+WARNING: Energy due to 1 extra global DOFs will be included in minimizer energies
+ (src/min.cpp:219)
+Per MPI rank memory allocation (min/avg/max) = 4.338 | 4.338 | 4.338 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press          Volume    
+         0   0              0.41291349     0              0.41291349     109.81764      322.58065    
+        39   0             -5.2332627      0             -5.2332627      44.451988      360.76996    
+Loop time of 0.0509401 on 1 procs for 39 steps with 500 atoms
+
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+     0.412913490871866  -5.36078326615664  -5.23326270952831
+  Force two-norm initial, final = 106275.13 46351.267
+  Force max component initial, final = 106275.13 46349.543
+  Final line search alpha, max atom move = 2.4235508e-15 1.1233047e-10
+  Iterations, force evaluations = 39 62
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.043184   | 0.043184   | 0.043184   |   0.0 | 84.77
+Neigh   | 0.0038494  | 0.0038494  | 0.0038494  |   0.0 |  7.56
+Comm    | 0.00093483 | 0.00093483 | 0.00093483 |   0.0 |  1.84
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.002972   |            |       |  5.83
+
+Nlocal:            500 ave         500 max         500 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           1956 ave        1956 max        1956 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:          32725 ave       32725 max       32725 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 32725
+Ave neighs/atom = 65.45
+Neighbor list builds = 3
+Dangerous builds = 0
+
+unfix           1
+run             0   # Evaluate after minimization
+WARNING: No fixes with time integration, atoms won't move (src/verlet.cpp:60)
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.215 | 3.215 | 3.215 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+        39   0             -5.3607833      0             -5.3607833      47.17411     
+Loop time of 1.773e-06 on 1 procs for 0 steps with 500 atoms
+
+112.8% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.773e-06  |            |       |100.00
+
+Nlocal:            500 ave         500 max         500 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           1956 ave        1956 max        1956 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:          33500 ave       33500 max       33500 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 33500
+Ave neighs/atom = 67
+Neighbor list builds = 0
+Dangerous builds = 0
+
+# ---------- Molecular Dynamics Run & Output ---------
+# Add these lines to run the simulation and generate output
+velocity        all create 1.0 87345 dist gaussian
+fix             2 all nve
+timestep        0.005
+dump            my_dump all custom 100 final.dump id type x y z
+dump_modify     my_dump sort id
+run             100000
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.215 | 3.215 | 3.215 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+        39   1             -5.3607833      0             -3.8637833      48.557263    
+    100039   0.48251877    -4.5693257      0             -3.8469951      52.865418    
+Loop time of 26.9249 on 1 procs for 100000 steps with 500 atoms
+
+Performance: 1604464.938 tau/day, 3714.039 timesteps/s, 1.857 Matom-step/s
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 25.604     | 25.604     | 25.604     |   0.0 | 95.09
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.61179    | 0.61179    | 0.61179    |   0.0 |  2.27
+Output  | 0.25037    | 0.25037    | 0.25037    |   0.0 |  0.93
+Modify  | 0.30576    | 0.30576    | 0.30576    |   0.0 |  1.14
+Other   |            | 0.153      |            |       |  0.57
+
+Nlocal:            500 ave         500 max         500 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           1956 ave        1956 max        1956 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:          33500 ave       33500 max       33500 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 33500
+Ave neighs/atom = 67
+Neighbor list builds = 0
+Dangerous builds = 0
+
+# ---------- Output Properties ------------------------
+variable natoms equal count(all)
+variable teng   equal pe
+variable length equal lx/5.0
+variable ecoh   equal v_teng/v_natoms
+
+print "Total energy (LJ units) = ${teng}"
+Total energy (LJ units) = -4.56932566768712
+print "Number of atoms = ${natoms}"
+Number of atoms = 500
+print "Equilibrium lattice constant (in LJ units) = ${length}"
+Equilibrium lattice constant (in LJ units) = 1.4237709184022
+print "Cohesive energy per atom (LJ units) = ${ecoh}"
+Cohesive energy per atom (LJ units) = -0.00913865133537424
+
+print "All done!"
+All done!
+Total wall time: 0:00:27

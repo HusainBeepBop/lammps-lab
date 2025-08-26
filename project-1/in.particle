@@ -1,0 +1,34 @@
+# LAMMPS input script: Calculate energy of a single Cu nanoparticle
+
+# 1. Initialization
+variable        R index 10.0      # Variable for radius (in Angstroms), default is 10.0
+units           metal
+dimension       3
+boundary        f f f         # Non-periodic (free surface)
+atom_style      atomic
+
+# 2. System Definition
+lattice         fcc 3.615
+region          simbox block -40 40 -40 40 -40 40  # A box big enough to hold the particle
+create_box      1 simbox
+region          sphere sphere 0 0 0 ${R} # Define a sphere of radius R at the center
+create_atoms    1 region sphere
+
+# 3. Force Field (Potential)
+pair_style      eam
+pair_coeff      * * Cu_u3.eam
+
+# 4. Run Minimization
+thermo          10
+thermo_style    custom step pe
+minimize        1.0e-12 1.0e-12 10000 100000
+
+# 5. Final Energy Output
+variable        N equal "count(all)"
+variable        E_particle equal "pe"  # 'pe' is the total potential energy of the system
+
+print "-----------------------------------------------------"
+print "Nanoparticle Calculation for Radius = ${R} Angstroms"
+print "Total Atoms (N) = ${N}"
+print "Total Energy (E_particle) = ${E_particle} eV"
+print "-----------------------------------------------------"

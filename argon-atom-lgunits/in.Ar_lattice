@@ -1,0 +1,59 @@
+# ---------- Initialize Simulation --------------------
+units           lj
+dimension       3
+boundary        p p p
+atom_style      atomic
+atom_modify     map array
+
+# ---------- Define FCC Argon Lattice -----------------
+# In LJ units, use sigma = 1.0, so lattice constant is typically ~1.55
+lattice         fcc 1.55
+region          box block 0 1 0 1 0 1 units lattice
+create_box      1 box
+create_atoms    1 box
+
+# Replicate to create bigger system (avoid finite size effects)
+replicate       5 5 5       # 500 atoms total
+
+mass            1 1.0       # LJ units: mass = 1.0
+
+# ---------- LJ Potential -----------------------------
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0     # ε = 1.0, σ = 1.0 in LJ units
+pair_modify     tail yes
+
+neighbor        0.3 bin
+neigh_modify    delay 10 check yes
+
+# ---------- Relaxation -------------------------------
+reset_timestep  0
+fix             1 all box/relax iso 0.0 vmax 0.001
+
+min_style       cg
+min_modify      dmax 0.01
+minimize        1.0e-12 1.0e-12 5000 10000
+
+unfix           1
+run             0   # Evaluate after minimization
+
+# ---------- Molecular Dynamics Run & Output ---------
+# Add these lines to run the simulation and generate output
+velocity        all create 1.0 87345 dist gaussian
+fix             2 all nve
+timestep        0.005
+dump            my_dump all custom 100 final.dump id type x y z
+dump_modify     my_dump sort id
+run             100000
+
+# ---------- Output Properties ------------------------
+variable natoms equal count(all)
+variable teng   equal pe
+variable length equal lx/5.0
+variable ecoh   equal v_teng/v_natoms
+
+print "Total energy (LJ units) = ${teng}"
+print "Number of atoms = ${natoms}"
+print "Equilibrium lattice constant (in LJ units) = ${length}"
+print "Cohesive energy per atom (LJ units) = ${ecoh}"
+
+print "All done!"
